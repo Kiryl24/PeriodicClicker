@@ -1,0 +1,11 @@
+<resources>
+	<string name="app_name">PeriodicClicker</string>
+	<string name="play_button_description"/>
+	<string name="options_button_description"/>
+	<string name="back_button_description"/>
+	<string name="buy_proton"/>
+	<string name="buy_neutron"/>
+	<string name="element_image_description"/>
+	<string name="options_gear_description"/>
+	<string name="upgrade"/>
+</resources>

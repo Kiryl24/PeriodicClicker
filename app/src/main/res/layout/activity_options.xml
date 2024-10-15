@@ -1,0 +1,52 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+			  xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+			  android:layout_height="match_parent"
+			  android:orientation="vertical"
+			  android:padding="16dp"
+			  android:gravity="center"
+			  android:screenOrientation="landscape"
+			  android:background="#FFFFFF" tools:ignore="DiscouragedApi,ExtraText">
+
+	<ImageButton
+			android:id="@+id/backButton"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:src="@drawable/back"
+			android:contentDescription="@string/back_button_description"
+			android:background="@android:color/transparent" tools:ignore="SpeakableTextPresentCheck"/>
+	<TextView
+			android:id="@+id/volumeLabel"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="Main volume"
+			android:textSize="20sp"
+			android:layout_marginTop="10dp"/>
+
+	<SeekBar
+			android:id="@+id/volumeSeekBar"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:max="100"
+			android:layout_marginBottom="24dp"/>
+	<TextView
+			android:id="@+id/musicLabel"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="Music volume"
+			android:textSize="20sp"/>
+	<SeekBar
+			android:id="@+id/musicSeekBar"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:max="100"
+			android:layout_marginBottom="24dp"/>
+
+	<!-- Przełącznik do włączania/wyłączania wibracji -->
+
+	<Switch
+			android:id="@+id/vibrationSwitch"
+			android:layout_width="193dp"
+			android:layout_height="89dp"
+			android:text="Enable Vibration"/>
+
+</LinearLayout>

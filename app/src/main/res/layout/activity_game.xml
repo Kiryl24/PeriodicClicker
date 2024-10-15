@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+			 xmlns:tools="http://schemas.android.com/tools"
+			 android:layout_width="match_parent"
+			 android:layout_height="match_parent"
+			 android:screenOrientation="landscape" tools:ignore="DiscouragedApi">
+
+	<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:orientation="vertical"
+			android:padding="16dp">
+
+		<TextView
+				android:id="@+id/nextElementRequirementsTextView"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="Next Element: 0/0"
+				android:textSize="18sp"
+				android:layout_gravity="center" />
+
+		<TextView
+				android:id="@+id/playerElectronsTextView"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="Electrons:" />
+
+		<TextView
+				android:id="@+id/protonsTextView"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="Protons: " />
+
+		<TextView
+				android:id="@+id/protonPriceTextView"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="Proton Price:" />
+
+		<ImageButton
+				android:id="@+id/buyProtonButton"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:src="@drawable/proton"
+				android:contentDescription="@string/buy_proton"
+				android:background="@android:color/transparent"
+				android:layout_marginEnd="8dp" tools:ignore="SpeakableTextPresentCheck"/>
+
+		<TextView
+				android:id="@+id/neutronsTextView"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_marginTop="20dp"
+				android:text="Neutrons: 0" />
+
+		<TextView
+				android:id="@+id/neutronPriceTextView"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="Neutron Price:" />
+
+		<ImageButton
+				android:id="@+id/buyNeutronButton"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:src="@drawable/neutron"
+				android:contentDescription="@string/buy_neutron"
+				android:background="@android:color/transparent"
+				android:layout_marginEnd="8dp" tools:ignore="SpeakableTextPresentCheck"/>
+
+	</LinearLayout>
+
+	<ImageButton
+			android:id="@+id/hiddenButton"
+			android:layout_width="250dp"
+			android:layout_height="250dp"
+			android:layout_gravity="center"
+			android:background="@android:color/transparent"
+			android:contentDescription="@string/element_image_description"
+			android:scaleType="fitCenter"
+			tools:ignore="SpeakableTextPresentCheck" />
+	<ImageView
+			android:id="@+id/optionsGearImageView"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="end"
+			android:src="@drawable/optionsgear"
+			android:background="@android:color/transparent"
+			android:contentDescription="@string/options_gear_description" />
+	<ImageView
+			android:id="@+id/arrowImageView"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="bottom|end"
+			android:src="@drawable/arrot"
+			android:background="@android:color/transparent"
+			android:contentDescription="@string/upgrade"/>
+
+</FrameLayout>
