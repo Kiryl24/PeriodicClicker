@@ -3,49 +3,50 @@ package com.example.periodicclicker;
 import android.content.Context;
 import android.media.MediaPlayer;
 import android.util.Log;
-import com.example.periodicclicker.R;
 
 public class Shop {
     private Context context;
-
     private GameActivity gA;
-
-    private MediaPlayer mediaPlayer;
-
-    private int neutronPrice = 10;
-
+    private MediaPlayer mediaPlayer; // For playing approval or denial sounds
+    private float protonPrice = 10;
+    private float neutronPrice = 10;
     private int playerElectrons;
 
-    private int protonPrice = 10;
+    public void setProtonPrice(float protonPrice) {
+        this.protonPrice = protonPrice;
+    }
+
+    public void setNeutronPrice(float neutronPrice) {
+        this.neutronPrice = neutronPrice;
+    }
+
+
 
     public Shop(GameActivity paramGameActivity) {
-        this.context = (Context)paramGameActivity;
+        this.context = paramGameActivity;
         this.gA = paramGameActivity;
         this.playerElectrons = getPlayerElectron();
+        // Initialize mediaPlayer for approval sound (set up later for denial)
     }
 
     private void playSound(int soundResourceId) {
-
-        MediaPlayer mediaPlayer = MediaPlayer.create(context, soundResourceId);
-
+        if (mediaPlayer != null) {
+            mediaPlayer.release(); // Release any existing instance before creating a new one
+        }
+        mediaPlayer = MediaPlayer.create(context, soundResourceId);
 
         if (mediaPlayer != null) {
-
             mediaPlayer.setOnCompletionListener(mp -> {
-
-                mp.release();
+                mp.release(); // Release resources after playback
             });
-
-
             mediaPlayer.start();
-
+        } else {
             Log.e("playSound", "Nie udało się utworzyć MediaPlayer dla zasobu: " + soundResourceId);
         }
     }
 
-
     public int getNeutronPrice() {
-        return this.neutronPrice;
+        return (int) this.neutronPrice;
     }
 
     public int getPlayerElectron() {
@@ -57,40 +58,42 @@ public class Shop {
     }
 
     public int getProtonPrice() {
-        return this.protonPrice;
+        return (int) this.protonPrice;
     }
 
     public boolean purchaseNeutron() {
-        int i = this.playerElectrons;
-        int j = this.neutronPrice;
-        if (i >= j) {
-            this.playerElectrons = i - j;
-            GameActivity gameActivity = this.gA;
-            gameActivity.setPurchasedNeutrons(gameActivity.getPurchasedNeutrons() + 1);
-            playSound(R.raw.approval);
-            this.neutronPrice *= 1.2;
+        if (playerElectrons >= neutronPrice && gA.getPurchasedNeutrons() < gA.getNeededNeutrons()) {
+            playerElectrons -= neutronPrice;
+            gA.setPurchasedNeutrons(gA.getPurchasedNeutrons() + 1);
+            playSound(R.raw.approval); // Play approval sound
+            neutronPrice *= 1.2; // Increase price for the next purchase
             return true;
         }
-        playSound(R.raw.denial);
+        playSound(R.raw.denial); // Play denial sound
         return false;
     }
 
     public boolean purchaseProton() {
-        int i = this.playerElectrons;
-        int j = this.protonPrice;
-        if (i >= j) {
-            this.playerElectrons = i - j;
-            GameActivity gameActivity = this.gA;
-            gameActivity.setPurchasedProtons(gameActivity.getPurchasedProtons() + 1);
-            playSound(R.raw.approval);
-            this.protonPrice *= 1.2;
+        if (playerElectrons >= protonPrice && gA.getPurchasedProtons() < gA.getNeededProtons()) {
+            playerElectrons -= protonPrice;
+            gA.setPurchasedProtons(gA.getPurchasedProtons() + 1);
+            playSound(R.raw.approval); // Play approval sound
+            protonPrice *= 1.2; // Increase price for the next purchase
             return true;
         }
-        playSound(R.raw.denial);
+        playSound(R.raw.denial); // Play denial sound
         return false;
     }
 
     public void setPlayerElectron(int paramInt) {
         this.playerElectrons = paramInt;
+    }
+
+    // Release MediaPlayer resources
+    public void releaseMediaPlayer() {
+        if (mediaPlayer != null) {
+            mediaPlayer.release();
+            mediaPlayer = null;
+        }
     }
 }

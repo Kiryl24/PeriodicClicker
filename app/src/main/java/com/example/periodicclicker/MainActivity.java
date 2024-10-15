@@ -13,7 +13,6 @@ import com.example.periodicclicker.R;
 
 public class MainActivity extends AppCompatActivity {
     private ElementsDatabaseHelper elementsDatabaseHelper;
-    private PlayerDatabaseHelper playerDatabaseHelper;
     private MusicManager musicManager;
 
     private ImageButton playButton; // Użyj ImageButton
@@ -33,10 +32,10 @@ public class MainActivity extends AppCompatActivity {
 
         // Inicjalizacja bazy danych
         elementsDatabaseHelper = new ElementsDatabaseHelper(this);
-        playerDatabaseHelper = new PlayerDatabaseHelper(this);
+
         // Wywołanie getWritableDatabase dla inicjalizacji
         elementsDatabaseHelper.getWritableDatabase();
-        playerDatabaseHelper.getWritableDatabase();
+
 
         // Inicjalizacja przycisków
         playButton = findViewById(R.id.playButton); // Upewnij się, że te ID są poprawne w pliku layout
@@ -107,6 +106,5 @@ public class MainActivity extends AppCompatActivity {
         }
         // Zamknij bazy danych
         elementsDatabaseHelper.close();
-        playerDatabaseHelper.close();
     }
 }

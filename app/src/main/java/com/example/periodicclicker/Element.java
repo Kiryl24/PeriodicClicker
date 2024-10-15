@@ -8,6 +8,9 @@ import android.widget.Toast;
 import androidx.core.content.ContextCompat;
 import com.example.periodicclicker.R;
 
+import java.lang.ref.WeakReference;
+
+
 public class Element {
     private static final int[] ELEMENT_SPRITES = new int[] {
             R.drawable.h, R.drawable.he, R.drawable.li, R.drawable.be, R.drawable.b, R.drawable.c, R.drawable.n, R.drawable.o, R.drawable.f, R.drawable.ne,
@@ -23,12 +26,12 @@ public class Element {
             R.drawable.md, R.drawable.no, R.drawable.lr };
 
     private int atomicNumber;
-
+    private ElementsDatabaseHelper elementsDatabaseHelper;
+    private GameActivity gameActivity;
     private int clickCount;
 
     private Context context;
 
-    private ElementsDatabaseHelper databaseHelper;
 
     private int neutrons;
 
@@ -38,16 +41,22 @@ public class Element {
 
     private String symbol;
 
-    public Element(int paramInt, String paramString, Context paramContext) {
+    public Element(int paramInt, String paramString, Context paramContext, GameActivity gameActivity) {
+        if (paramContext == null) {
+            Log.e("Element", "Context is null in Element constructor");
+            return;
+        }
+        this.gameActivity = gameActivity;
         this.atomicNumber = paramInt;
         this.symbol = paramString;
         this.context = paramContext;
         this.protons = 1;
         this.neutrons = 0;
         this.clickCount = 0;
-        this.databaseHelper = new ElementsDatabaseHelper(paramContext);
+        this.elementsDatabaseHelper = new ElementsDatabaseHelper(paramContext);
         updateSprite();
     }
+
 
     private Drawable getDrawableForAtomicNumber(int paramInt) {
         if (--paramInt >= 0) {
@@ -58,21 +67,45 @@ public class Element {
         return ContextCompat.getDrawable(this.context, R.drawable.h);
     }
 
-    void checkAndUpdateSprite() {
-        int[] arrayOfInt = this.databaseHelper.getNextElementData();
-        if (arrayOfInt != null) {
-            int i = arrayOfInt[0];
-            int j = arrayOfInt[1];
-            if (this.protons >= i && this.neutrons >= j) {
-                updateSprite();
-                Toast.makeText(this.context, "Fusion succesful!", Toast.LENGTH_SHORT).show();
+    public void setAtomicNumber(int atomicNumber) {
+        this.atomicNumber = atomicNumber;
+        elementsDatabaseHelper.setCurrentElement(this); // Update sprite when atomic number changes
+        updateSprite(); // Ensure the sprite is updated immediately after changing atomic number
+    }
+
+    public void checkAndUpdateSprite() {
+        // Pobierz wymagane protony i neutrony dla następnego elementu
+        elementsDatabaseHelper.setCurrentElement(this);
+
+        // Retrieve data for the next element based on the current atomic number
+        int[] nextElementData = elementsDatabaseHelper.getNextElementData();
+        if (nextElementData != null) {
+            int requiredProtons = nextElementData[0];  // Proton count for the next element
+            int requiredNeutrons = nextElementData[1]; // Neutron count for the next element
+
+            // Sprawdź, czy gameActivity nie jest null, aby uniknąć NullPointerException
+            if (gameActivity != null) {
+                // Check if player has enough protons and neutrons
+                if (gameActivity.getPurchasedProtons() >= requiredProtons && gameActivity.getPurchasedNeutrons() >= requiredNeutrons) {
+                    Toast.makeText(this.context, "Fusion successful!", Toast.LENGTH_SHORT).show();
+
+                    // Increase atomic number after successful fusion
+                    setAtomicNumber(getAtomicNumber() + 1);
+
+                    // Reset purchased counts in GameActivity
+                    gameActivity.resetPurchasedCounts();
+
+                } else {
+                    Toast.makeText(this.context, "Not enough nucleons", Toast.LENGTH_SHORT).show();
+                }
             } else {
-                Toast.makeText(this.context, "Not enough nucleons",Toast.LENGTH_SHORT).show();
+                Log.e("Element", "GameActivity is null!");
             }
         } else {
             Log.e("Database Error", "No data found for the next element.");
         }
     }
+
 
     public int getAtomicNumber() {
         return this.atomicNumber;

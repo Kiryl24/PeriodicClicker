@@ -7,14 +7,33 @@
 			  android:screenOrientation="landscape"
 			  android:background="#FFFFFF" tools:ignore="DiscouragedApi,ExtraText">
 
-	<ImageButton
-			android:id="@+id/backButton"
+	<LinearLayout
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:src="@drawable/back"
-			android:contentDescription="@string/back_button_description"
-			android:background="@android:color/transparent" tools:ignore="SpeakableTextPresentCheck"/>
-	<TextView
+			android:orientation="horizontal"
+			android:gravity="center_horizontal"
+			android:layout_marginBottom="20dp">
+
+		<!-- Back Button -->
+
+		<!-- Reset Button -->
+		<ImageButton
+				android:id="@+id/backButton"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:src="@drawable/back"
+				android:contentDescription="@string/back_button_description"
+				android:background="@android:color/transparent"
+				tools:ignore="SpeakableTextPresentCheck"/>
+		<ImageButton
+				android:id="@+id/resetButton"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:src="@drawable/reset"
+				android:contentDescription="@string/reset_button_description"
+				android:background="@android:color/transparent"
+				android:layout_marginStart="16dp" />
+	</LinearLayout><TextView
 			android:id="@+id/volumeLabel"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"

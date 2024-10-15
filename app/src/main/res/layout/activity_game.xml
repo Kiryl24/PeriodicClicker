@@ -23,7 +23,7 @@
 				android:id="@+id/playerElectronsTextView"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:text="Electrons:" />
+				android:text="Electrons:"/>
 
 		<TextView
 				android:id="@+id/protonsTextView"

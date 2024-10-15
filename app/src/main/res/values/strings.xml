@@ -8,4 +8,5 @@
 	<string name="element_image_description"/>
 	<string name="options_gear_description"/>
 	<string name="upgrade"/>
+	<string name="reset_button_description">reset</string>
 </resources>

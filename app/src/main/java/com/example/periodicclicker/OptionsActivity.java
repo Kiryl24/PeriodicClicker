@@ -1,5 +1,6 @@
 package com.example.periodicclicker;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.AudioManager;
@@ -7,6 +8,7 @@ import android.os.Bundle;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.Switch;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.periodicclicker.R;
 
@@ -18,6 +20,8 @@ public class OptionsActivity extends AppCompatActivity {
     private AudioManager audioManager;
     private ImageButton backButton;
     private MusicManager musicManager;
+    private GameActivity gameActivity;
+    private ImageButton resetButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,6 +29,7 @@ public class OptionsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_options);
 
+        GameActivity gameActivity = new GameActivity();
         audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
         sharedPreferences = getSharedPreferences("GameSettings", MODE_PRIVATE);
 
@@ -115,8 +120,40 @@ public class OptionsActivity extends AppCompatActivity {
                 finish(); // Wracamy do MainActivity
             }
         });
-    }
+        resetButton = findViewById(R.id.resetButton);
+        resetButton.setOnClickListener(v -> {
+            showResetConfirmationDialog();
 
+        });
+
+    }
+    private void showResetConfirmationDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Reset Progress");
+        builder.setMessage("Do you really want to erase your progress?");
+
+        // Set positive button (YES)
+        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                GameActivity gameActivity = GameActivity.getInstance();
+                if (gameActivity != null) {
+                    gameActivity.resetSharedPreferences(); // Reset data in GameActivity
+                }
+            }
+        });
+
+        // Set negative button (NO)
+        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss(); // Close the dialog without doing anything
+            }
+        });
+
+
+        builder.create().show();
+    }
     @Override
     protected void onPause() {
         super.onPause();
