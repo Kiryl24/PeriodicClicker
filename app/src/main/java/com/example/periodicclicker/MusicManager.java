@@ -8,17 +8,14 @@ public class MusicManager {
     private static MusicManager instance;
     private MediaPlayer mediaPlayer;
 
-    // Prywatny konstruktor
-    private MusicManager(Context context) {
+        private MusicManager(Context context) {
         mediaPlayer = MediaPlayer.create(context, R.raw.soundtrack);
         mediaPlayer.setLooping(true);
     }
 
-    // Metoda do uzyskiwania instancji singletona
-    public static MusicManager getInstance(Context context) {
+        public static MusicManager getInstance(Context context) {
         if (instance == null) {
-            instance = new MusicManager(context.getApplicationContext()); // Użyj getApplicationContext() aby uniknąć wycieków pamięci
-        }
+            instance = new MusicManager(context.getApplicationContext());         }
         return instance;
     }
 

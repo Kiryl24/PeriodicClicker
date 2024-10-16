@@ -10,8 +10,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
-import android.util.Log; // Import for logging
-import android.widget.ImageButton;
+import android.util.Log; import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.os.Vibrator;
@@ -21,30 +20,22 @@ import com.example.periodicclicker.R;
 
 public class GameActivity extends AppCompatActivity {
     private ElementsDatabaseHelper elementsDatabaseHelper;
-    private Shop shop; // Declare Shop instance
-    private Element currentElement; // Currently active element
-    private MusicManager musicManager;
+    private Shop shop;     private Element currentElement;     private MusicManager musicManager;
     private Vibrator vibrator;
-    // Player stats variables// Changed to PlayerStats object
-    private int purchasedProtons = 0;
-    private int purchasedNeutrons = 0; // Starting neutrons
-    private TextView protonPriceTextView;
+        private int purchasedProtons = 0;
+    private int purchasedNeutrons = 0;     private TextView protonPriceTextView;
     private TextView neutronPriceTextView;
     private ImageView elementImageView;
     private TextView protonsTextView;
     private TextView neutronsTextView;
     private TextView playerElectronsTextView;
-    private TextView nextElementRequirementsTextView; // TextView for next element requirements
-    private ImageButton buyProtonButton;
+    private TextView nextElementRequirementsTextView;     private ImageButton buyProtonButton;
     private ImageButton buyNeutronButton;
     private ImageView optionsGearImageView;
     private ImageView arrowImageView;
-    private ImageButton elementImageButton; // Changed from Button to ImageButton
-    private SensorManager sensorManager;
+    private ImageButton elementImageButton;     private SensorManager sensorManager;
     private Sensor accelerometer;
-    private float lastX, lastY, lastZ; // Last accelerometer readings
-    private long lastUpdate; // Last time the sensor was updated
-    private static final float SHAKE_THRESHOLD = 800;
+    private float lastX, lastY, lastZ;     private long lastUpdate;     private static final float SHAKE_THRESHOLD = 800;
     private int playerElectrons;
     private int neutronsNeeded;
     private int protonsNeeded;
@@ -75,12 +66,9 @@ public class GameActivity extends AppCompatActivity {
         Log.d("GameActivity", "PlayerDatabaseHelper initialized");
 
 
-        // Initialize the ElementsDatabaseHelper
-        elementsDatabaseHelper = new ElementsDatabaseHelper(this);
+                elementsDatabaseHelper = new ElementsDatabaseHelper(this);
 
-        // Przykład: Inicjalizowanie aktualnego elementu (np. wodoru)
-        currentElement = new Element(1, "Hydrogen", this, this); // Example initialization
-
+                currentElement = new Element(1, "Hydrogen", this, this); 
         elementsDatabaseHelper.setCurrentElement(currentElement);
         Log.d("GameActivity", "Current Element: " + currentElement);
 
@@ -92,24 +80,16 @@ public class GameActivity extends AppCompatActivity {
         loadSavedData();
 
 
-        // Initialize MusicManager as singleton
-        musicManager = MusicManager.getInstance(this); // Ensure we have MusicManager instance
-
-        // Initialize accelerometer
-        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+                musicManager = MusicManager.getInstance(this); 
+                sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
-        // Start music on activity launch
-        if (musicManager != null) {
-            musicManager.startMusic(); // Use MusicManager to play music
-        }
+                if (musicManager != null) {
+            musicManager.startMusic();         }
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 
-        // Your existing code...
-         // Call to update the display
-
-        // Call the checkFusion function to see if fusion is possible
-        initializeUIComponents();
+                 
+                initializeUIComponents();
         updateDisplay();
 
 
@@ -118,45 +98,32 @@ public class GameActivity extends AppCompatActivity {
         SharedPreferences sharedPreferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
 
-        // Usunięcie wszystkich zapisanych danych
-        editor.clear();
+                editor.clear();
         editor.apply();
         setPurchasedProtons(0);
         setPurchasedNeutrons(0);
         shop.setPlayerElectron(0);
-        currentElement.setAtomicNumber(1); // Default to 1 if not found
-        shop.setNeutronPrice(10.0f); // Default price
-        shop.setProtonPrice(10.0f);// Zastosowanie zmian
-
-        // Opcjonalnie: Poinformuj użytkownika, że dane zostały zresetowane
-        Toast.makeText(this, "Data has been reset", Toast.LENGTH_SHORT).show();
+        currentElement.setAtomicNumber(1);         shop.setNeutronPrice(10.0f);         shop.setProtonPrice(10.0f);
+                Toast.makeText(this, "Data has been reset", Toast.LENGTH_SHORT).show();
     }
     private void loadSavedData() {
         SharedPreferences sharedPreferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
 
-        // Load saved data from SharedPreferences
-        setPurchasedProtons(sharedPreferences.getInt("protons", 0));
+                setPurchasedProtons(sharedPreferences.getInt("protons", 0));
         setPurchasedNeutrons(sharedPreferences.getInt("neutrons", 0));
         shop.setPlayerElectron(sharedPreferences.getInt("electrons", 0));
-        currentElement.setAtomicNumber(sharedPreferences.getInt("atomicNumber", 1)); // Default to 1 if not found
-        shop.setNeutronPrice(sharedPreferences.getFloat("neutronPrice", 10.0f)); // Default price
-        shop.setProtonPrice(sharedPreferences.getFloat("protonPrice", 10.0f)); // Default price
-
+        currentElement.setAtomicNumber(sharedPreferences.getInt("atomicNumber", 1));         shop.setNeutronPrice(sharedPreferences.getFloat("neutronPrice", 10.0f));         shop.setProtonPrice(sharedPreferences.getFloat("protonPrice", 10.0f)); 
         Log.d("GameActivity", "Loaded Data - Protons: " + purchasedProtons + ", Neutrons: " + purchasedNeutrons +
                 ", Electrons: " + playerElectrons + ", Atomic Number: " + atomicNumber);
     }
     private void checkFusion() {
         if (purchasedProtons == 0 && purchasedNeutrons == 0) {
-            // Fusion is possible
-            vibrate(); // Trigger vibration
-        }
+                        vibrate();         }
     }
 
-    // Method to trigger vibration
-    private void vibrate() {
+        private void vibrate() {
         if (vibrator != null) {
-            // Vibrate for 500 milliseconds
-            vibrator.vibrate(500);
+                        vibrator.vibrate(500);
             Log.d("GameActivity", "Vibration triggered!");
         } else {
             Log.e("GameActivity", "Vibrator not available");
@@ -172,8 +139,7 @@ public class GameActivity extends AppCompatActivity {
         editor.putInt("atomicNumber", currentElement.getAtomicNumber());
         editor.putFloat("protonPrice", shop.getProtonPrice());
         editor.putFloat("neutronPrice", shop.getNeutronPrice());
-        editor.apply(); // Apply changes
-    }
+        editor.apply();     }
 
     @Override
     protected void onPause() {
@@ -189,8 +155,7 @@ public class GameActivity extends AppCompatActivity {
             musicManager.release();
             musicManager = null;
         }
-        // Zamknij bazy danych
-        elementsDatabaseHelper.close();
+                elementsDatabaseHelper.close();
         savePlayerStats();
 
     }
@@ -210,17 +175,9 @@ public class GameActivity extends AppCompatActivity {
         neutronPriceTextView = findViewById(R.id.neutronPriceTextView);
         arrowImageView = findViewById(R.id.arrowImageView);
 
-        // Set the text for TextViews (ensure these variables are Strings or convert them)
-        playerElectronsTextView.setText(String.valueOf(playerElectrons)); // Convert to String
-        protonsTextView.setText(String.valueOf(purchasedProtons));       // Convert to String
-        neutronsTextView.setText(String.valueOf(purchasedNeutrons));     // Convert to String
-
-        // Set initial prices
-        protonPriceTextView.setText("Proton Price: " + shop.getProtonPrice()); // Ensure getProtonPrice() returns a String or convert
-        neutronPriceTextView.setText("Neutron Price: " + shop.getNeutronPrice()); // Ensure getNeutronPrice() returns a String or convert
-        updateDisplay();
-        // Set listeners for buttons
-        buyProtonButton.setOnClickListener(v -> {
+                playerElectronsTextView.setText(String.valueOf(playerElectrons));         protonsTextView.setText(String.valueOf(purchasedProtons));               neutronsTextView.setText(String.valueOf(purchasedNeutrons));     
+                protonPriceTextView.setText("Proton Price: " + shop.getProtonPrice());         neutronPriceTextView.setText("Neutron Price: " + shop.getNeutronPrice());         updateDisplay();
+                buyProtonButton.setOnClickListener(v -> {
             shop.purchaseProton();
             playerElectrons = shop.getPlayerElectrons();
             updateDisplay();
@@ -241,8 +198,7 @@ public class GameActivity extends AppCompatActivity {
         arrowImageView.setOnClickListener(v -> {
             if (currentElement == null) {
                 Log.e("GameActivity", "Current element is null. Cannot update sprite.");
-                return; // Prevent action if currentElement is null
-            }
+                return;             }
 
             currentElement.checkAndUpdateSprite();
         });
@@ -251,23 +207,18 @@ public class GameActivity extends AppCompatActivity {
             handleElementClick();
         });
 
-        // Update the initial display state
-        updateDisplay();
+                updateDisplay();
     }
     public void setPurchasedProtons(int purchasedProtons) {
         this.purchasedProtons = purchasedProtons;
-        // Można dodać sprawdzenie limitu, aby upewnić się, że nie są ujemne
-        if (this.purchasedProtons < 0) {
-            this.purchasedProtons = 0; // Zapobiegaj wartościom ujemnym
-        }
+                if (this.purchasedProtons < 0) {
+            this.purchasedProtons = 0;         }
     }
 
     public void setPurchasedNeutrons(int purchasedNeutrons) {
         this.purchasedNeutrons = purchasedNeutrons;
-        // Można dodać sprawdzenie limitu, aby upewnić się, że nie są ujemne
-        if (this.purchasedNeutrons < 0) {
-            this.purchasedNeutrons = 0; // Zapobiegaj wartościom ujemnym
-        }
+                if (this.purchasedNeutrons < 0) {
+            this.purchasedNeutrons = 0;         }
     }
 
 
@@ -288,25 +239,17 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void handleElementClick() {
-        // Decrease button size
-        elementImageButton.setScaleX(0.9f);
+                elementImageButton.setScaleX(0.9f);
         elementImageButton.setScaleY(0.9f);
         Log.d("GameActivity", "Player Electrons: " + shop.getPlayerElectron());
 
-        // Increase electron count by current element's atomic number
-        int newElectronCount = shop.getPlayerElectrons() + currentElement.getAtomicNumber();
-        shop.setPlayerElectron(newElectronCount); // Save new value in Shop
-        updateDisplay();
-        // Save player stats every time an element is clicked
-
-        // Increase electron count by current element's atomic number
-        shop.setPlayerElectron(newElectronCount); // Save new value in Shop
-        playerElectrons = newElectronCount; // Update local playerElectrons variable
-        updateDisplay();
+                int newElectronCount = shop.getPlayerElectrons() + currentElement.getAtomicNumber();
+        shop.setPlayerElectron(newElectronCount);         updateDisplay();
+        
+                shop.setPlayerElectron(newElectronCount);         playerElectrons = newElectronCount;         updateDisplay();
         savePlayerStats();
 
-        // Restore size after a short delay
-        elementImageButton.postDelayed(() -> {
+                elementImageButton.postDelayed(() -> {
             elementImageButton.setScaleX(1.0f);
             elementImageButton.setScaleY(1.0f);
         }, 100);
@@ -314,8 +257,7 @@ public class GameActivity extends AppCompatActivity {
 
     @SuppressLint("SetTextI18n")
     void updateDisplay() {
-        // Update the display with current player and element states
-        protonsTextView.setText("Protons: " + (purchasedProtons));
+                protonsTextView.setText("Protons: " + (purchasedProtons));
         neutronsTextView.setText("Neutrons: " + purchasedNeutrons);
         playerElectronsTextView.setText("Electrons: " + shop.getPlayerElectrons());
         nextElementRequirementsTextView.setText("Next Element: " +
@@ -332,11 +274,9 @@ public class GameActivity extends AppCompatActivity {
         if (nextElementProtonData != null && nextElementProtonData.length > 0) {
             int protons = nextElementProtonData[0];
             Log.d("GameActivity", "Next Element Protons: " + protons);
-            return protons; // Return protons at index 0
-        } else {
+            return protons;         } else {
             Log.e("GameActivity", "No next element proton data found.");
-            return 0; // Or some default value
-        }
+            return 0;         }
     }
 
     private int getNextElementNeutrons() {
@@ -344,11 +284,9 @@ public class GameActivity extends AppCompatActivity {
         if (nextElementNeutronData != null && nextElementNeutronData.length > 1) {
             int neutrons = nextElementNeutronData[1];
             Log.d("GameActivity", "Next Element Neutrons: " + neutrons);
-            return neutrons; // Return neutrons at index 1
-        } else {
+            return neutrons;         } else {
             Log.e("GameActivity", "No next element neutron data found.");
-            return 0; // Or some default value
-        }
+            return 0;         }
     }
 
 
@@ -372,8 +310,7 @@ public class GameActivity extends AppCompatActivity {
                     currentElement.checkAndUpdateSprite();
                     if (currentElement == null) {
                         Log.e("GameActivity", "Current element is null. Cannot update sprite.");
-                        return; // Prevent action if currentElement is null
-                    }
+                        return;                     }
 
                 }
 
@@ -385,8 +322,7 @@ public class GameActivity extends AppCompatActivity {
 
         @Override
         public void onAccuracyChanged(Sensor sensor, int accuracy) {
-            // Handle accuracy changes if needed
-        }
+                    }
     };
 
     void resetPurchasedCounts() {
@@ -395,6 +331,5 @@ public class GameActivity extends AppCompatActivity {
         protonsNeeded = getNextElementProtons();
         neutronsNeeded = getNextElementNeutrons();
 
-        updateDisplay(); // Update display to reflect reset counts
-    }
+        updateDisplay();     }
 }

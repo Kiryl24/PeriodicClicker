@@ -15,12 +15,9 @@ public class MainActivity extends AppCompatActivity {
     private ElementsDatabaseHelper elementsDatabaseHelper;
     private MusicManager musicManager;
 
-    private ImageButton playButton; // Użyj ImageButton
-    private ImageButton optionsButton;
+    private ImageButton playButton;     private ImageButton optionsButton;
 
-    private AudioManager audioManager; // AudioManager do zarządzania dźwiękiem
-    private int maxVolume, currentVolume; // Zmienna do przechowywania poziomu głośności
-    private SharedPreferences sharedPreferences;
+    private AudioManager audioManager;     private int maxVolume, currentVolume;     private SharedPreferences sharedPreferences;
 
     @SuppressLint("WrongViewCast")
     @Override
@@ -30,19 +27,14 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         sharedPreferences = getSharedPreferences("GameSettings", MODE_PRIVATE);
 
-        // Inicjalizacja bazy danych
-        elementsDatabaseHelper = new ElementsDatabaseHelper(this);
+                elementsDatabaseHelper = new ElementsDatabaseHelper(this);
 
-        // Wywołanie getWritableDatabase dla inicjalizacji
-        elementsDatabaseHelper.getWritableDatabase();
+                elementsDatabaseHelper.getWritableDatabase();
 
 
-        // Inicjalizacja przycisków
-        playButton = findViewById(R.id.playButton); // Upewnij się, że te ID są poprawne w pliku layout
-        optionsButton = findViewById(R.id.optionsButton);
+                playButton = findViewById(R.id.playButton);         optionsButton = findViewById(R.id.optionsButton);
 
-        // Obsługa kliknięcia przycisku "Play"
-        playButton.setOnClickListener(new View.OnClickListener() {
+                playButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, GameActivity.class);
@@ -50,8 +42,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // Obsługa kliknięcia przycisku "Options"
-        optionsButton.setOnClickListener(new View.OnClickListener() {
+                optionsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, OptionsActivity.class);
@@ -59,18 +50,12 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // Inicjalizacja MusicManager jako singleton
-        musicManager = MusicManager.getInstance(this);
+                musicManager = MusicManager.getInstance(this);
 
-        // Uruchom muzykę
-        if (musicManager != null) {
+                if (musicManager != null) {
             musicManager.startMusic();
 
-            // Ustaw głośność
-            int savedMusicVolume = sharedPreferences.getInt("musicVolume", 50); // Domyślna wartość to 50
-            float volume = savedMusicVolume / 100f; // Przekształć do zakresu 0-1
-            musicManager.setVolume(volume); // Ustaw głośność na podstawie SharedPreferences
-        }
+                        int savedMusicVolume = sharedPreferences.getInt("musicVolume", 50);             float volume = savedMusicVolume / 100f;             musicManager.setVolume(volume);         }
 
         audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
         maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
@@ -80,8 +65,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        // Zatrzymanie muzyki, jeśli aplikacja przechodzi w tło
-        if (musicManager != null) {
+                if (musicManager != null) {
             musicManager.stopMusic();
         }
     }
@@ -89,8 +73,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        // Wznowienie muzyki, jeśli aplikacja wraca na pierwszy plan
-        if (musicManager != null) {
+                if (musicManager != null) {
             musicManager.startMusic();
         }
     }
@@ -98,13 +81,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        // Zwolnienie zasobów MediaPlayer przy zamknięciu aplikacji
-        if (musicManager != null) {
+                if (musicManager != null) {
             musicManager.stopMusic();
             musicManager.release();
             musicManager = null;
         }
-        // Zamknij bazy danych
-        elementsDatabaseHelper.close();
+                elementsDatabaseHelper.close();
     }
 }

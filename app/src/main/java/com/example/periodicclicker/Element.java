@@ -69,31 +69,21 @@ public class Element {
 
     public void setAtomicNumber(int atomicNumber) {
         this.atomicNumber = atomicNumber;
-        elementsDatabaseHelper.setCurrentElement(this); // Update sprite when atomic number changes
-        updateSprite(); // Ensure the sprite is updated immediately after changing atomic number
-    }
+        elementsDatabaseHelper.setCurrentElement(this);         updateSprite();     }
 
     public void checkAndUpdateSprite() {
-        // Pobierz wymagane protony i neutrony dla następnego elementu
-        elementsDatabaseHelper.setCurrentElement(this);
+                elementsDatabaseHelper.setCurrentElement(this);
 
-        // Retrieve data for the next element based on the current atomic number
-        int[] nextElementData = elementsDatabaseHelper.getNextElementData();
+                int[] nextElementData = elementsDatabaseHelper.getNextElementData();
         if (nextElementData != null) {
-            int requiredProtons = nextElementData[0];  // Proton count for the next element
-            int requiredNeutrons = nextElementData[1]; // Neutron count for the next element
-
-            // Sprawdź, czy gameActivity nie jest null, aby uniknąć NullPointerException
-            if (gameActivity != null) {
-                // Check if player has enough protons and neutrons
-                if (gameActivity.getPurchasedProtons() >= requiredProtons && gameActivity.getPurchasedNeutrons() >= requiredNeutrons) {
+            int requiredProtons = nextElementData[0];              int requiredNeutrons = nextElementData[1]; 
+                        if (gameActivity != null) {
+                                if (gameActivity.getPurchasedProtons() >= requiredProtons && gameActivity.getPurchasedNeutrons() >= requiredNeutrons) {
                     Toast.makeText(this.context, "Fusion successful!", Toast.LENGTH_SHORT).show();
 
-                    // Increase atomic number after successful fusion
-                    setAtomicNumber(getAtomicNumber() + 1);
+                                        setAtomicNumber(getAtomicNumber() + 1);
 
-                    // Reset purchased counts in GameActivity
-                    gameActivity.resetPurchasedCounts();
+                                        gameActivity.resetPurchasedCounts();
 
                 } else {
                     Toast.makeText(this.context, "Not enough nucleons", Toast.LENGTH_SHORT).show();

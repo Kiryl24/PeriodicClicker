@@ -33,30 +33,20 @@ public class OptionsActivity extends AppCompatActivity {
         audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
         sharedPreferences = getSharedPreferences("GameSettings", MODE_PRIVATE);
 
-        // Inicjalizacja MusicManager jako singleton
-        musicManager = MusicManager.getInstance(this); // Upewnij się, że mamy instancję MusicManager
+                musicManager = MusicManager.getInstance(this); 
+                if (musicManager != null) {
+            musicManager.startMusic();         }
 
-        // Uruchom muzykę, jeśli musicManager nie jest null
-        if (musicManager != null) {
-            musicManager.startMusic(); // Uruchom muzykę
-        }
+                musicSeekBar = findViewById(R.id.musicSeekBar);
+        int savedMusicVolume = sharedPreferences.getInt("musicVolume", 50);         musicSeekBar.setProgress(savedMusicVolume);
 
-        // Inicjalizacja suwaka głośności muzyki
-        musicSeekBar = findViewById(R.id.musicSeekBar);
-        int savedMusicVolume = sharedPreferences.getInt("musicVolume", 50); // Domyślna wartość głośności to 50
-        musicSeekBar.setProgress(savedMusicVolume);
-
-        // Ustawienie głośności na podstawie suwaka
-        float volume = savedMusicVolume / 100f;
-        musicManager.setVolume(volume); // Ustawienie głośności dla obu kanałów (lewy i prawy)
-
-        // Inicjalizacja suwaka ogólnego głośności
-        volumeSeekBar = findViewById(R.id.volumeSeekBar);
+                float volume = savedMusicVolume / 100f;
+        musicManager.setVolume(volume); 
+                volumeSeekBar = findViewById(R.id.volumeSeekBar);
         int currentVolume = sharedPreferences.getInt("volume", 50);
         volumeSeekBar.setProgress(currentVolume);
 
-        // Obsługa zmian suwaka głośności ogólnego
-        volumeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                volumeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, progress, 0);
@@ -73,14 +63,12 @@ public class OptionsActivity extends AppCompatActivity {
             }
         });
 
-        // Obsługa zmian suwaka głośności muzyki
-        musicSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                musicSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 float volume = progress / 100f;
                 if (musicManager != null) {
-                    musicManager.setVolume(volume); // Zmiana głośności muzyki
-                }
+                    musicManager.setVolume(volume);                 }
             }
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {}
@@ -90,16 +78,13 @@ public class OptionsActivity extends AppCompatActivity {
                 editor.putInt("musicVolume", seekBar.getProgress());
                 editor.apply();
 
-                // Ustaw głośność w MusicManager
-                float volume = seekBar.getProgress() / 100f; // Zakładam, że volume jest w zakresie 0-100
-                if (musicManager != null) {
+                                float volume = seekBar.getProgress() / 100f;                 if (musicManager != null) {
                     musicManager.setVolume(volume);
                 }
             }
         });
 
-        // Inicjalizacja przełącznika wibracji
-        vibrationSwitch = findViewById(R.id.vibrationSwitch);
+                vibrationSwitch = findViewById(R.id.vibrationSwitch);
         boolean isVibrationEnabled = sharedPreferences.getBoolean("vibration", true);
         vibrationSwitch.setChecked(isVibrationEnabled);
 
@@ -109,16 +94,13 @@ public class OptionsActivity extends AppCompatActivity {
             editor.apply();
         });
 
-        // Przycisk powrotu
-        backButton = findViewById(R.id.backButton);
+                backButton = findViewById(R.id.backButton);
         backButton.setOnClickListener(v -> {
             if (getIntent().getBooleanExtra("fromGame", false)) {
-                // Wracamy do GameActivity
-                Intent intent = new Intent(OptionsActivity.this, GameActivity.class);
+                                Intent intent = new Intent(OptionsActivity.this, GameActivity.class);
                 startActivity(intent);
             } else {
-                finish(); // Wracamy do MainActivity
-            }
+                finish();             }
         });
         resetButton = findViewById(R.id.resetButton);
         resetButton.setOnClickListener(v -> {
@@ -132,23 +114,19 @@ public class OptionsActivity extends AppCompatActivity {
         builder.setTitle("Reset Progress");
         builder.setMessage("Do you really want to erase your progress?");
 
-        // Set positive button (YES)
-        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 GameActivity gameActivity = GameActivity.getInstance();
                 if (gameActivity != null) {
-                    gameActivity.resetSharedPreferences(); // Reset data in GameActivity
-                }
+                    gameActivity.resetSharedPreferences();                 }
             }
         });
 
-        // Set negative button (NO)
-        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss(); // Close the dialog without doing anything
-            }
+                dialog.dismiss();             }
         });
 
 
@@ -157,8 +135,7 @@ public class OptionsActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        // Zatrzymanie muzyki, jeśli aplikacja przechodzi w tło
-        if (musicManager != null) {
+                if (musicManager != null) {
             musicManager.stopMusic();
         }
     }
@@ -166,8 +143,7 @@ public class OptionsActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        // Wznowienie muzyki, jeśli aplikacja wraca na pierwszy plan
-        if (musicManager != null) {
+                if (musicManager != null) {
             musicManager.startMusic();
         }
     }
@@ -175,8 +151,7 @@ public class OptionsActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        // Zwolnienie zasobów MediaPlayer przy zamknięciu aplikacji
-        if (musicManager != null) {
+                if (musicManager != null) {
             musicManager.stopMusic();
             musicManager.release();
             musicManager = null;

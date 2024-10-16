@@ -164,12 +164,9 @@ public class ElementsDatabaseHelper extends SQLiteOpenHelper {
         int nextAtomicNumber = currentElement.getAtomicNumber() + 1;
         Cursor cursor = db.query(TABLE_NAME, null, "atomic_number = ?", new String[]{String.valueOf(nextAtomicNumber)}, null, null, null);
         if (currentElement != null) {
-            // Zdobądź dane dla następnego elementu, np. na podstawie atomicNumber
-
-            // Logika do uzyskania następnego elementu z bazy danych...
-        } else {
-            Log.e("ElementsDatabaseHelper", "currentElement is null, unable to get next element data.");// lub możesz rzucić wyjątek
-        }
+            
+                    } else {
+            Log.e("ElementsDatabaseHelper", "currentElement is null, unable to get next element data.");        }
         if (cursor != null && cursor.moveToFirst()) {
             @SuppressLint("Range") int protons = cursor.getInt(cursor.getColumnIndex("protons"));
             @SuppressLint("Range") int neutrons = cursor.getInt(cursor.getColumnIndex("neutrons"));
@@ -178,8 +175,7 @@ public class ElementsDatabaseHelper extends SQLiteOpenHelper {
             return new int[]{protons, neutrons};
         } else {
             Log.e("ElementsDatabaseHelper", "Cursor is null or empty for atomic number: " + nextAtomicNumber);
-            return new int[]{0, 0}; // lub inna wartość domyślna
-        }
+            return new int[]{0, 0};         }
     }
 
 
