@@ -147,6 +147,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
         currentElement.setAtomicNumber(1);         shop.setNeutronPrice(10.0f);         shop.setProtonPrice(10.0f);
                 Toast.makeText(this, "Data has been reset", Toast.LENGTH_SHORT).show();
         savePlayerStats();
+        updateDisplay();
     }
     private void loadSavedData() {
         SharedPreferences sharedPreferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
