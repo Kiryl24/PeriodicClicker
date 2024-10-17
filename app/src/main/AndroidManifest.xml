@@ -16,12 +16,14 @@
 			android:roundIcon="@mipmap/ic_launcher_round"
 			android:supportsRtl="true"
 			android:theme="@style/Theme.AppCompat.Light"
+
 	>
 		<service android:name=".MusicManager" android:enabled="true" android:exported="false" />
 
 
 		<activity android:exported="true"
 				  android:name="com.example.periodicclicker.MainActivity"
+
 				  android:screenOrientation="landscape" tools:ignore="DiscouragedApi">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
@@ -29,8 +31,10 @@
 			</intent-filter>
 		</activity>
 
-		<activity android:name="com.example.periodicclicker.OptionsActivity" />
-		<activity android:name="com.example.periodicclicker.GameActivity" />
+		<activity android:name="com.example.periodicclicker.OptionsActivity"
+				  android:screenOrientation="landscape" tools:ignore="DiscouragedApi"/>
+		<activity android:name="com.example.periodicclicker.GameActivity"
+				  android:screenOrientation="landscape" tools:ignore="DiscouragedApi"/>
 
 		<!-- Możliwe inne aktywności -->
 	</application>
