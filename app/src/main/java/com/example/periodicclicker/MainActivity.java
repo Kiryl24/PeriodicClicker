@@ -76,8 +76,11 @@ public class MainActivity extends AppCompatActivity {
             }
 
         });
-        arrowImageView.setOnClickListener(v -> {
-            finishAffinity();
+        arrowImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finishAffinity();
+            }
         });
     }
     private ServiceConnection musicServiceConnection = new ServiceConnection() {

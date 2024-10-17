@@ -200,7 +200,6 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
         Intent serviceIntent = new Intent(this, MusicManager.class);
         sensorManager.unregisterListener(this);
         stopService(serviceIntent);
-        finishAffinity();
     }
 
     @SuppressLint("SetTextI18n")
