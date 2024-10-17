@@ -1,4 +1,6 @@
-<LinearLayout xmlns:android="http:			  xmlns:tools="http:			  android:layout_height="match_parent"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+			  xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+			  android:layout_height="match_parent"
 			  android:orientation="vertical"
 			  android:padding="16dp"
 			  android:gravity="center"
@@ -12,9 +14,6 @@
 			android:gravity="center_horizontal"
 			android:layout_marginBottom="20dp">
 
-		<!-- Back Button -->
-
-		<!-- Reset Button -->
 		<ImageButton
 				android:id="@+id/backButton"
 				android:layout_width="wrap_content"
@@ -31,20 +30,7 @@
 				android:contentDescription="@string/reset_button_description"
 				android:background="@android:color/transparent"
 				android:layout_marginStart="16dp" />
-	</LinearLayout><TextView
-			android:id="@+id/volumeLabel"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:text="Main volume"
-			android:textSize="20sp"
-			android:layout_marginTop="10dp"/>
-
-	<SeekBar
-			android:id="@+id/volumeSeekBar"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:max="100"
-			android:layout_marginBottom="24dp"/>
+	</LinearLayout>
 	<TextView
 			android:id="@+id/musicLabel"
 			android:layout_width="wrap_content"
@@ -57,13 +43,23 @@
 			android:layout_height="wrap_content"
 			android:max="100"
 			android:layout_marginBottom="24dp"/>
+	<LinearLayout android:layout_height="107dp" android:layout_width="528dp">
 
-	<!-- Przełącznik do włączania/wyłączania wibracji -->
-
-	<Switch
-			android:id="@+id/vibrationSwitch"
-			android:layout_width="193dp"
-			android:layout_height="89dp"
-			android:text="Enable Vibration"/>
+		<Switch
+				android:id="@+id/vibrationSwitch"
+				android:layout_width="194dp"
+				android:layout_height="92dp"
+				android:text="Enable Vibration"/>
+		<Button
+				android:id="@+id/classicalMusicButton"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="Classical Music"/>
+		<Button
+				android:id="@+id/electronicMusicButton"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="Electronic Music"/>
+	</LinearLayout>
 
 </LinearLayout>

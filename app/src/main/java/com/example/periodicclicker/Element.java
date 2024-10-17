@@ -1,5 +1,5 @@
 package com.example.periodicclicker;
-
+import android.os.Vibrator;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
@@ -28,8 +28,6 @@ public class Element {
     private int atomicNumber;
     private ElementsDatabaseHelper elementsDatabaseHelper;
     private GameActivity gameActivity;
-    private int clickCount;
-
     private Context context;
 
 
@@ -50,9 +48,8 @@ public class Element {
         this.atomicNumber = paramInt;
         this.symbol = paramString;
         this.context = paramContext;
-        this.protons = 1;
+        this.protons = 0;
         this.neutrons = 0;
-        this.clickCount = 0;
         this.elementsDatabaseHelper = new ElementsDatabaseHelper(paramContext);
         updateSprite();
     }

@@ -1,15 +1,21 @@
 package com.example.periodicclicker;
 
 import android.annotation.SuppressLint;
+import android.app.ActivityManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.media.AudioManager;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.service.notification.NotificationListenerService;
 import android.view.View;
 import android.widget.ImageButton;
 import androidx.appcompat.app.AppCompatActivity;
-import com.example.periodicclicker.R;
+import android.content.ServiceConnection;
+
 
 public class MainActivity extends AppCompatActivity {
     private ElementsDatabaseHelper elementsDatabaseHelper;
@@ -19,18 +25,35 @@ public class MainActivity extends AppCompatActivity {
 
     private AudioManager audioManager;     private int maxVolume, currentVolume;     private SharedPreferences sharedPreferences;
 
+    private boolean isBound = false; 
+    private ServiceConnection serviceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            MusicManager.MusicBinder binder = (MusicManager.MusicBinder) service;
+            musicManager = binder.getService();             isBound = true; 
+                        int savedMusicVolume = sharedPreferences.getInt("musicVolume", 50);             float volume = savedMusicVolume / 100f;             musicManager.setVolume(volume);         }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            musicManager = null;
+            isBound = false;         }
+    };
+
     @SuppressLint("WrongViewCast")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        getSupportActionBar().hide();
         super.onCreate(savedInstanceState);
+        getSupportActionBar().hide();
         setContentView(R.layout.activity_main);
         sharedPreferences = getSharedPreferences("GameSettings", MODE_PRIVATE);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 
                 elementsDatabaseHelper = new ElementsDatabaseHelper(this);
+        elementsDatabaseHelper.getWritableDatabase();         if (!isMusicServiceRunning(MusicManager.class)) {
+            Intent musicIntent = new Intent(this, MusicManager.class);
+            startService(musicIntent);          }
 
-                elementsDatabaseHelper.getWritableDatabase();
-
+        bindService(new Intent(this, MusicManager.class), musicServiceConnection, Context.BIND_AUTO_CREATE);
 
                 playButton = findViewById(R.id.playButton);         optionsButton = findViewById(R.id.optionsButton);
 
@@ -49,42 +72,65 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+    }
+    private ServiceConnection musicServiceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            MusicManager.MusicBinder binder = (MusicManager.MusicBinder) service;
+            musicManager = binder.getService();              isBound = true;
+        }
 
-                musicManager = MusicManager.getInstance(this);
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            isBound = false;
+        }
+    };
 
-                if (musicManager != null) {
-            musicManager.startMusic();
+    private boolean isMusicServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
+    }
 
-                        int savedMusicVolume = sharedPreferences.getInt("musicVolume", 50);             float volume = savedMusicVolume / 100f;             musicManager.setVolume(volume);         }
+    @Override
+    protected void onStart() {
+        super.onStart();
+                Intent startMusicIntent = new Intent(this, MusicManager.class);
+        startService(startMusicIntent); 
+                bindService(startMusicIntent, serviceConnection, Context.BIND_AUTO_CREATE);
+    }
 
-        audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
-        maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
-        currentVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+    @Override
+    protected void onStop() {
+        super.onStop();
+                if (isBound) {
+            unbindService(serviceConnection);
+            isBound = false;
+        }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-                if (musicManager != null) {
-            musicManager.stopMusic();
-        }
-    }
+            }
 
     @Override
     protected void onResume() {
         super.onResume();
-                if (musicManager != null) {
-            musicManager.startMusic();
-        }
+                if (isBound && musicManager != null) {
+            musicManager.setVolume(1);         }
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-                if (musicManager != null) {
-            musicManager.stopMusic();
-            musicManager.release();
-            musicManager = null;
+                if (isBound) {
+            unbindService(serviceConnection);
+            isBound = false;
         }
                 elementsDatabaseHelper.close();
     }

@@ -1,34 +1,64 @@
 package com.example.periodicclicker;
 
+import android.app.ActivityManager;
+import android.app.Service;
 import android.content.Context;
+import android.content.Intent;
 import android.media.MediaPlayer;
-import com.example.periodicclicker.R;
+import android.os.Binder;
+import android.os.IBinder;
+import android.util.Log;
+import androidx.annotation.Nullable;
 
-public class MusicManager {
-    private static MusicManager instance;
+public class MusicManager extends Service {
     private MediaPlayer mediaPlayer;
+    private int currentTrack = 0;     private final IBinder binder = new MusicBinder(); 
+        public class MusicBinder extends Binder {
+        MusicManager getService() {
+            return MusicManager.this;         }
+    }
 
-        private MusicManager(Context context) {
-        mediaPlayer = MediaPlayer.create(context, R.raw.soundtrack);
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return binder;     }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+                mediaPlayer = MediaPlayer.create(this, R.raw.soundtrack);
         mediaPlayer.setLooping(true);
+        mediaPlayer.start();
+        Log.d("MusicManager", "Service created and started playing electronic music");
     }
 
-        public static MusicManager getInstance(Context context) {
-        if (instance == null) {
-            instance = new MusicManager(context.getApplicationContext());         }
-        return instance;
-    }
 
-    public void startMusic() {
-        if (mediaPlayer != null && !mediaPlayer.isPlaying()) {
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        if (intent != null && intent.hasExtra("track")) {
+            int track = intent.getIntExtra("track", 0);             playTrack(track);
+        }
+        if (intent != null && intent.hasExtra("volume")) {
+            float volume = intent.getFloatExtra("volume", 1.0f);
+            setVolume(volume);
+        }
+        return START_STICKY;     }
+
+    public void playTrack(int track) {
+        if (mediaPlayer != null) {
+            mediaPlayer.stop();
+            mediaPlayer.release(); 
+                        if (track == 1) {
+                mediaPlayer = MediaPlayer.create(this, R.raw.soundtrack);
+                Log.d("MusicManager", "Playing electronic music");
+            } else if (track == 0) {
+                mediaPlayer = MediaPlayer.create(this, R.raw.soundtrackclassic);
+                Log.d("MusicManager", "Playing classical music");
+            }
+
+            mediaPlayer.setLooping(true);
             mediaPlayer.start();
-        }
-    }
-
-    public void stopMusic() {
-        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
-            mediaPlayer.pause();
-        }
+            currentTrack = track;         }
     }
 
     public void setVolume(float volume) {
@@ -37,10 +67,12 @@ public class MusicManager {
         }
     }
 
-    public void release() {
+    @Override
+    public void onDestroy() {
         if (mediaPlayer != null) {
-            mediaPlayer.release();
-            mediaPlayer = null;
-        }
+            mediaPlayer.stop();
+            mediaPlayer.release();         }
+        super.onDestroy();
+        Log.d("MusicManager", "Service destroyed");
     }
 }

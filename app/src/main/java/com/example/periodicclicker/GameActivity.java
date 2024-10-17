@@ -1,26 +1,25 @@
 package com.example.periodicclicker;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
+import android.app.ActivityManager;
+import android.content.*;
 import android.content.pm.ActivityInfo;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.os.Bundle;
+import android.os.*;
 import android.util.Log; import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.os.Vibrator;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.periodicclicker.R;
 
-public class GameActivity extends AppCompatActivity {
-    private ElementsDatabaseHelper elementsDatabaseHelper;
+public class GameActivity extends AppCompatActivity implements SensorEventListener {
+    private final float[] gravity = new float[3];     private final float[] linearAcceleration = new float[3];     private static final float ALPHA = 0.8f;     private ElementsDatabaseHelper elementsDatabaseHelper;
     private Shop shop;     private Element currentElement;     private MusicManager musicManager;
+    private  OptionsActivity optionsActivity;
     private Vibrator vibrator;
         private int purchasedProtons = 0;
     private int purchasedNeutrons = 0;     private TextView protonPriceTextView;
@@ -35,23 +34,40 @@ public class GameActivity extends AppCompatActivity {
     private ImageView arrowImageView;
     private ImageButton elementImageButton;     private SensorManager sensorManager;
     private Sensor accelerometer;
-    private float lastX, lastY, lastZ;     private long lastUpdate;     private static final float SHAKE_THRESHOLD = 800;
+    float ax,ay,az;;     private static final float SHAKE_THRESHOLD = 800;
     private int playerElectrons;
     private int neutronsNeeded;
     private int protonsNeeded;
     private int atomicNumber = 1;
     private double protonPrice;
     private double neutronPrice;
-
+    private static final float THRESHOLD = 10.0f;
+    private long lastUpdate = 0;
+    private static final long UPDATE_INTERVAL = 500;
+    private boolean isBound = false;
     private static GameActivity instance;
 
     public static GameActivity getInstance() {
         return instance;
     }
+    private ServiceConnection musicServiceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            MusicManager.MusicBinder binder = (MusicManager.MusicBinder) service;
+            musicManager = binder.getService();              isBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            isBound = false;
+        }
+    };
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         getSupportActionBar().hide();
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         instance = this;
@@ -60,6 +76,8 @@ public class GameActivity extends AppCompatActivity {
         if (intent != null && intent.getBooleanExtra("resetPrefs", false)) {
             resetSharedPreferences();
         }
+        sensorManager=(SensorManager) getSystemService(SENSOR_SERVICE);
+        sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
 
         shop = new Shop(this);
         Log.d("GameActivity", "Initializing PlayerDatabaseHelper");
@@ -67,6 +85,7 @@ public class GameActivity extends AppCompatActivity {
 
 
                 elementsDatabaseHelper = new ElementsDatabaseHelper(this);
+        optionsActivity = new OptionsActivity();
 
                 currentElement = new Element(1, "Hydrogen", this, this); 
         elementsDatabaseHelper.setCurrentElement(currentElement);
@@ -76,17 +95,24 @@ public class GameActivity extends AppCompatActivity {
         neutronsNeeded = getNextElementNeutrons();
         SharedPreferences sharedPreferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
-
         loadSavedData();
 
+        if (!isMusicServiceRunning(MusicManager.class)) {
+            Intent musicIntent = new Intent(this, MusicManager.class);
+            startService(musicIntent);          }
 
-                musicManager = MusicManager.getInstance(this); 
+                bindService(new Intent(this, MusicManager.class), musicServiceConnection, Context.BIND_AUTO_CREATE);
+
+        
                 sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        if (accelerometer != null) {
+            sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+        } else {
+                        Log.d("Sensor", "Akcelerometr nie jest dostępny.");
+        }
 
-                if (musicManager != null) {
-            musicManager.startMusic();         }
-        vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        
 
                  
                 initializeUIComponents();
@@ -94,6 +120,16 @@ public class GameActivity extends AppCompatActivity {
 
 
     }
+    private boolean isMusicServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public void resetSharedPreferences() {
         SharedPreferences sharedPreferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -105,6 +141,7 @@ public class GameActivity extends AppCompatActivity {
         shop.setPlayerElectron(0);
         currentElement.setAtomicNumber(1);         shop.setNeutronPrice(10.0f);         shop.setProtonPrice(10.0f);
                 Toast.makeText(this, "Data has been reset", Toast.LENGTH_SHORT).show();
+        savePlayerStats();
     }
     private void loadSavedData() {
         SharedPreferences sharedPreferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
@@ -118,18 +155,10 @@ public class GameActivity extends AppCompatActivity {
     }
     private void checkFusion() {
         if (purchasedProtons == 0 && purchasedNeutrons == 0) {
-                        vibrate();         }
+                                 }
     }
 
-        private void vibrate() {
-        if (vibrator != null) {
-                        vibrator.vibrate(500);
-            Log.d("GameActivity", "Vibration triggered!");
-        } else {
-            Log.e("GameActivity", "Vibrator not available");
-        }
-    }
-    private void savePlayerStats() {
+        private void savePlayerStats() {
         SharedPreferences sharedPreferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
 
@@ -150,10 +179,9 @@ public class GameActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (musicManager != null) {
-            musicManager.stopMusic();
-            musicManager.release();
-            musicManager = null;
+        if (isBound) {
+            unbindService(musicServiceConnection);
+            isBound = false;
         }
                 elementsDatabaseHelper.close();
         savePlayerStats();
@@ -182,6 +210,7 @@ public class GameActivity extends AppCompatActivity {
             playerElectrons = shop.getPlayerElectrons();
             updateDisplay();
         });
+
 
         buyNeutronButton.setOnClickListener(v -> {
             shop.purchaseNeutron();
@@ -244,10 +273,9 @@ public class GameActivity extends AppCompatActivity {
         Log.d("GameActivity", "Player Electrons: " + shop.getPlayerElectron());
 
                 int newElectronCount = shop.getPlayerElectrons() + currentElement.getAtomicNumber();
-        shop.setPlayerElectron(newElectronCount);         updateDisplay();
-        
+        shop.setPlayerElectron(newElectronCount);         
                 shop.setPlayerElectron(newElectronCount);         playerElectrons = newElectronCount;         updateDisplay();
-        savePlayerStats();
+
 
                 elementImageButton.postDelayed(() -> {
             elementImageButton.setScaleX(1.0f);
@@ -266,6 +294,7 @@ public class GameActivity extends AppCompatActivity {
         elementImageButton.setImageDrawable(currentElement.getSprite());
         protonPriceTextView.setText("Proton Price: " + shop.getProtonPrice());
         neutronPriceTextView.setText("Neutron Price: " + shop.getNeutronPrice());
+        savePlayerStats();
     }
 
     private int getNextElementProtons() {
@@ -278,6 +307,23 @@ public class GameActivity extends AppCompatActivity {
             Log.e("GameActivity", "No next element proton data found.");
             return 0;         }
     }
+    public void vibrate() {
+        Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        if (isVibrationEnabled()) {             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                v.vibrate(VibrationEffect.createOneShot(500, VibrationEffect.DEFAULT_AMPLITUDE));
+                Log.d("Game Activity", "Vibrate on uppers sdk");
+            } else {
+                                v.vibrate(500);
+                Log.d("Game Activity", "Vibrate on lower sdk");
+            }
+        } else {
+            Log.d("Game Activity", "Vibration is turned off sdk");
+        }
+    }
+
+    private boolean isVibrationEnabled() {
+        SharedPreferences sharedPreferences = getSharedPreferences("GameSettings", MODE_PRIVATE);
+        return sharedPreferences.getBoolean("vibration", true);     }
 
     private int getNextElementNeutrons() {
         int[] nextElementNeutronData = elementsDatabaseHelper.getNextElementData();
@@ -292,44 +338,57 @@ public class GameActivity extends AppCompatActivity {
 
 
 
-    private final SensorEventListener sensorEventListener = new SensorEventListener() {
-        @Override
-        public void onSensorChanged(SensorEvent event) {
-            float x = event.values[0];
-            float y = event.values[1];
-            float z = event.values[2];
-            long currentTime = System.currentTimeMillis();
+    @Override
+    public void onAccuracyChanged(Sensor arg0, int arg1) {
+    }
 
-            if ((currentTime - lastUpdate) > 100) {
-                long diffTime = (currentTime - lastUpdate);
-                lastUpdate = currentTime;
 
-                float speed = Math.abs(x + y + z - lastX - lastY - lastZ) / diffTime * 10000;
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+            long currentTime = System.currentTimeMillis(); 
+                        if ((currentTime - lastUpdate) > UPDATE_INTERVAL) {
+                lastUpdate = currentTime; 
+                                float rawX = event.values[0];
+                float rawY = event.values[1];
+                float rawZ = event.values[2];
 
-                if (speed > SHAKE_THRESHOLD) {
+                                gravity[0] = ALPHA * gravity[0] + (1 - ALPHA) * rawX;
+                gravity[1] = ALPHA * gravity[1] + (1 - ALPHA) * rawY;
+                gravity[2] = ALPHA * gravity[2] + (1 - ALPHA) * rawZ;
+
+                                linearAcceleration[0] = rawX - gravity[0];
+                linearAcceleration[1] = rawY - gravity[1];
+                linearAcceleration[2] = rawZ - gravity[2];
+
+                                double totalAcceleration = Math.sqrt(Math.pow(linearAcceleration[0], 2) +
+                        Math.pow(linearAcceleration[1], 2) +
+                        Math.pow(linearAcceleration[2], 2));
+
+                                if (totalAcceleration > THRESHOLD) {                                         Log.d("SensorEvent", "Przyspieszenie bez grawitacji - X: " + linearAcceleration[0]
+                            + ", Y: " + linearAcceleration[1] + ", Z: " + linearAcceleration[2]);
+
+                                        ax = linearAcceleration[0];
+                    ay = linearAcceleration[1];
+                    az = linearAcceleration[2];
+
+                    Log.d("SensorEvent", "Aktualizacja checkAndUpdateSprite() oraz updateDisplay()");
                     currentElement.checkAndUpdateSprite();
-                    if (currentElement == null) {
-                        Log.e("GameActivity", "Current element is null. Cannot update sprite.");
-                        return;                     }
-
+                    updateDisplay();
+                } else {
+                                        Log.d("SensorEvent", "Zmiana poniżej progu. Ignorowane.");
                 }
-
-                lastX = x;
-                lastY = y;
-                lastZ = z;
             }
         }
-
-        @Override
-        public void onAccuracyChanged(Sensor sensor, int accuracy) {
-                    }
-    };
+    }
 
     void resetPurchasedCounts() {
         purchasedProtons = 0;
         purchasedNeutrons = 0;
         protonsNeeded = getNextElementProtons();
         neutronsNeeded = getNextElementNeutrons();
+        vibrate();
 
         updateDisplay();     }
+
 }
