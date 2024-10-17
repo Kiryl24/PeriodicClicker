@@ -11,8 +11,10 @@ import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.service.notification.NotificationListenerService;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import androidx.appcompat.app.AppCompatActivity;
 import android.content.ServiceConnection;
 
@@ -24,14 +26,15 @@ public class MainActivity extends AppCompatActivity {
     private ImageButton playButton;     private ImageButton optionsButton;
 
     private AudioManager audioManager;     private int maxVolume, currentVolume;     private SharedPreferences sharedPreferences;
-
+    private ImageView  arrowImageView;
     private boolean isBound = false; 
     private ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             MusicManager.MusicBinder binder = (MusicManager.MusicBinder) service;
             musicManager = binder.getService();             isBound = true; 
-                        int savedMusicVolume = sharedPreferences.getInt("musicVolume", 50);             float volume = savedMusicVolume / 100f;             musicManager.setVolume(volume);         }
+            int savedMusicVolume = sharedPreferences.getInt("musicVolume", 50);
+            float volume = savedMusicVolume / 100f;             musicManager.setVolume(volume);         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
@@ -52,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
         elementsDatabaseHelper.getWritableDatabase();         if (!isMusicServiceRunning(MusicManager.class)) {
             Intent musicIntent = new Intent(this, MusicManager.class);
             startService(musicIntent);          }
-
+        arrowImageView = findViewById(R.id.arrowImageView);
         bindService(new Intent(this, MusicManager.class), musicServiceConnection, Context.BIND_AUTO_CREATE);
 
                 playButton = findViewById(R.id.playButton);         optionsButton = findViewById(R.id.optionsButton);
@@ -71,6 +74,10 @@ public class MainActivity extends AppCompatActivity {
                 Intent intent = new Intent(MainActivity.this, OptionsActivity.class);
                 startActivity(intent);
             }
+
+        });
+        arrowImageView.setOnClickListener(v -> {
+            finishAffinity();
         });
     }
     private ServiceConnection musicServiceConnection = new ServiceConnection() {
@@ -111,18 +118,26 @@ public class MainActivity extends AppCompatActivity {
             unbindService(serviceConnection);
             isBound = false;
         }
+        Intent serviceIntent = new Intent(this, MusicManager.class);
+        stopService(serviceIntent);
+
     }
+
 
     @Override
     protected void onPause() {
         super.onPause();
-            }
+        Intent serviceIntent = new Intent(this, MusicManager.class);
+        stopService(serviceIntent);
+    }
 
     @Override
     protected void onResume() {
         super.onResume();
                 if (isBound && musicManager != null) {
             musicManager.setVolume(1);         }
+        Intent serviceIntent = new Intent(this, MusicManager.class);
+        startService(serviceIntent);
     }
 
     @Override
@@ -133,5 +148,7 @@ public class MainActivity extends AppCompatActivity {
             isBound = false;
         }
                 elementsDatabaseHelper.close();
+        Intent serviceIntent = new Intent(this, MusicManager.class);
+        stopService(serviceIntent);
     }
 }

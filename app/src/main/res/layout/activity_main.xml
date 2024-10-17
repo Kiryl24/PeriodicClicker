@@ -6,6 +6,14 @@
 			  android:gravity="center"
 			  android:screenOrientation="landscape" tools:ignore="DiscouragedApi">
 
+	<ImageView
+			android:id="@+id/arrowImageView"
+			android:layout_width="71dp"
+			android:layout_height="64dp"
+			android:layout_gravity="top|end"
+			android:src="@drawable/exit"
+			android:background="@android:color/transparent"
+			android:contentDescription="@string/upgrade"/>
 	<ImageButton
 			android:id="@+id/playButton"
 			android:layout_width="wrap_content"

@@ -12,7 +12,8 @@ import androidx.annotation.Nullable;
 
 public class MusicManager extends Service {
     private MediaPlayer mediaPlayer;
-    private int currentTrack = 0;     private final IBinder binder = new MusicBinder(); 
+    private int currentTrack = 1;
+    private final IBinder binder = new MusicBinder();
         public class MusicBinder extends Binder {
         MusicManager getService() {
             return MusicManager.this;         }
@@ -26,7 +27,7 @@ public class MusicManager extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-                mediaPlayer = MediaPlayer.create(this, R.raw.soundtrack);
+                mediaPlayer = MediaPlayer.create(this, R.raw.soundtrackclassic);
         mediaPlayer.setLooping(true);
         mediaPlayer.start();
         Log.d("MusicManager", "Service created and started playing electronic music");
@@ -36,7 +37,7 @@ public class MusicManager extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent != null && intent.hasExtra("track")) {
-            int track = intent.getIntExtra("track", 0);             playTrack(track);
+            int track = intent.getIntExtra("track", 1);             playTrack(track);
         }
         if (intent != null && intent.hasExtra("volume")) {
             float volume = intent.getFloatExtra("volume", 1.0f);
@@ -48,10 +49,10 @@ public class MusicManager extends Service {
         if (mediaPlayer != null) {
             mediaPlayer.stop();
             mediaPlayer.release(); 
-                        if (track == 1) {
+                if (track == 0) {
                 mediaPlayer = MediaPlayer.create(this, R.raw.soundtrack);
                 Log.d("MusicManager", "Playing electronic music");
-            } else if (track == 0) {
+            } else if (track == 1) {
                 mediaPlayer = MediaPlayer.create(this, R.raw.soundtrackclassic);
                 Log.d("MusicManager", "Playing classical music");
             }
@@ -65,6 +66,16 @@ public class MusicManager extends Service {
         if (mediaPlayer != null) {
             mediaPlayer.setVolume(volume, volume);
         }
+    }
+    @Override
+    public void onTaskRemoved(Intent rootIntent) {
+        // Zatrzymaj muzykę po usunięciu zadania (zamknięciu aplikacji)
+        if (mediaPlayer != null) {
+            mediaPlayer.stop();
+            mediaPlayer.release();
+        }
+        stopSelf();  // Zatrzymaj serwis
+        super.onTaskRemoved(rootIntent);
     }
 
     @Override

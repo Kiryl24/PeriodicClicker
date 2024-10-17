@@ -89,10 +89,10 @@
 			android:contentDescription="@string/options_gear_description" />
 	<ImageView
 			android:id="@+id/arrowImageView"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
+			android:layout_width="71dp"
+			android:layout_height="64dp"
 			android:layout_gravity="bottom|end"
-			android:src="@drawable/arrot"
+			android:src="@drawable/exit"
 			android:background="@android:color/transparent"
 			android:contentDescription="@string/upgrade"/>
 

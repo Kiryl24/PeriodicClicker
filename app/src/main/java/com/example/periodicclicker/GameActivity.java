@@ -17,8 +17,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.periodicclicker.R;
 
 public class GameActivity extends AppCompatActivity implements SensorEventListener {
-    private final float[] gravity = new float[3];     private final float[] linearAcceleration = new float[3];     private static final float ALPHA = 0.8f;     private ElementsDatabaseHelper elementsDatabaseHelper;
-    private Shop shop;     private Element currentElement;     private MusicManager musicManager;
+    private final float[] gravity = new float[3];
+    private final float[] linearAcceleration = new float[3];
+    private static final float ALPHA = 0.8f;
+    private ElementsDatabaseHelper elementsDatabaseHelper;
+    private Shop shop;     private Element currentElement;
+    private MusicManager musicManager;
     private  OptionsActivity optionsActivity;
     private Vibrator vibrator;
         private int purchasedProtons = 0;
@@ -83,8 +87,9 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
         Log.d("GameActivity", "Initializing PlayerDatabaseHelper");
         Log.d("GameActivity", "PlayerDatabaseHelper initialized");
 
-
-                elementsDatabaseHelper = new ElementsDatabaseHelper(this);
+        Intent serviceIntent = new Intent(this, MusicManager.class);
+        startService(serviceIntent);
+        elementsDatabaseHelper = new ElementsDatabaseHelper(this);
         optionsActivity = new OptionsActivity();
 
                 currentElement = new Element(1, "Hydrogen", this, this); 
@@ -171,10 +176,17 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
         editor.apply();     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
-        savePlayerStats();
+    protected void onStop() {
+        super.onStop();
+        Log.d("MyActivity", "onStop() called");
+        if (isBound) {
+            unbindService(musicServiceConnection);
+            isBound = false;
+        }
+        Intent serviceIntent = new Intent(this, MusicManager.class);
+        stopService(serviceIntent);
     }
+
 
     @Override
     protected void onDestroy() {
@@ -185,7 +197,10 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
         }
                 elementsDatabaseHelper.close();
         savePlayerStats();
-
+        Intent serviceIntent = new Intent(this, MusicManager.class);
+        sensorManager.unregisterListener(this);
+        stopService(serviceIntent);
+        finishAffinity();
     }
 
     @SuppressLint("SetTextI18n")
@@ -225,11 +240,8 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
         });
 
         arrowImageView.setOnClickListener(v -> {
-            if (currentElement == null) {
-                Log.e("GameActivity", "Current element is null. Cannot update sprite.");
-                return;             }
-
-            currentElement.checkAndUpdateSprite();
+            destroy();
+            
         });
 
         elementImageButton.setOnClickListener(v -> {
@@ -249,7 +261,12 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
                 if (this.purchasedNeutrons < 0) {
             this.purchasedNeutrons = 0;         }
     }
-
+    public void destroy() {
+        sensorManager.unregisterListener(this);
+        Intent serviceIntent = new Intent(this, MusicManager.class);
+        stopService(serviceIntent);
+        finishAffinity();
+    }
 
     public int getPurchasedProtons() {
         return purchasedProtons;

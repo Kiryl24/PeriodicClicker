@@ -71,7 +71,8 @@ public class OptionsActivity extends AppCompatActivity {
             startService(musicIntent);          }
 
         bindService(new Intent(this, MusicManager.class), musicServiceConnection, Context.BIND_AUTO_CREATE);
-
+        Intent serviceIntent = new Intent(this, MusicManager.class);
+        startService(serviceIntent);
                 Button classicalMusicButton = findViewById(R.id.classicalMusicButton);
         Button electronicMusicButton = findViewById(R.id.electronicMusicButton);
 
@@ -158,14 +159,31 @@ public class OptionsActivity extends AppCompatActivity {
         if (isBound) {
             unbindService(musicServiceConnection);
             isBound = false;
-        }
-    }
 
+        }
+        Intent serviceIntent = new Intent(this, MusicManager.class);
+        stopService(serviceIntent);
+    }
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (isBound) {
+            unbindService(musicServiceConnection);
+            isBound = false;
+        }
+        Intent serviceIntent = new Intent(this, MusicManager.class);
+        stopService(serviceIntent);
+
+
+    }
     @Override
     protected void onResume() {
         super.onResume();
         Intent musicIntent = new Intent(this, MusicManager.class);
+        Intent serviceIntent = new Intent(this, MusicManager.class);
+        startService(serviceIntent);
         bindService(musicIntent, musicServiceConnection, Context.BIND_AUTO_CREATE);
+        startService(serviceIntent);
     }
 
     @Override
@@ -175,5 +193,8 @@ public class OptionsActivity extends AppCompatActivity {
             unbindService(musicServiceConnection);
             isBound = false;
         }
+        Intent serviceIntent = new Intent(this, MusicManager.class);
+        stopService(serviceIntent);
+
     }
 }
